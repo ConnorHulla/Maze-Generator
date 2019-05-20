@@ -109,8 +109,13 @@ public class Menu extends JFrame {
                 
                 return;
            }
-               
-               
+           
+           
+           MazeHolder mazeWindow = new MazeHolder(rownum, colnum);
+          
+           mazeWindow.setVisible(true);
+           
+           setVisible(false);
            
            System.out.println("Rows: " + rownum + " Columns: " + colnum);
        }
