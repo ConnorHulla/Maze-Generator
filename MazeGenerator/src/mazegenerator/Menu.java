@@ -58,6 +58,7 @@ public class Menu extends JFrame {
         submit.addActionListener(new SubmitListener());
         panel.add(submit);
 
+
     }
     
     public static void main(String[] args) {
