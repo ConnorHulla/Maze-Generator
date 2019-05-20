@@ -4,18 +4,23 @@ package graphics;
 import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+import java.awt.geom.Line2D;
 import javax.swing.JFrame;
 
 
 public class DrawMaze extends Canvas {
    
+    final double SIZE = 400.0;
+
     
     //m = rows, n = columns, just like a standard matrix!
     int m,n;
     
     DrawMaze() {
-        m = 11;
-        n = 11;
+        m = 4;
+        n = 4;
     }
     
     DrawMaze(int x, int y) {
@@ -24,18 +29,22 @@ public class DrawMaze extends Canvas {
     }
     
     @Override
-    public void paint(Graphics g){
+    public void paint(Graphics graphics){
+        Graphics2D g = (Graphics2D)graphics;
+        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, 
+                RenderingHints.VALUE_ANTIALIAS_ON); //enables antialiasing
+
         //we need to generate the size of our array
         //how I derived this formula will be in the readme
         int size = 4*m*n - 2*n - 2*m; 
         //the wonky formula below is there because I wanted to round up (not down) with my integers
-        int rowSp = 400/m, colSp = 400/n;
+        double rowSp = SIZE/m, colSp = SIZE/n;
         
         g.setColor(Color.red);    //set the color to red
-        g.drawLine(0, 0, 400 , 0); //top border
-        g.drawLine(0, rowSp, 0, 400); //creates the opening left edge
-        g.drawLine(0, 400, 400, 400); //creates the bottom edge
-        g.drawLine(400, 0, 400, 400 - rowSp); //right edge
+        g.draw(new Line2D.Double(0, 0, SIZE , 0)); //top border
+        g.draw(new Line2D.Double(0, rowSp, 0, SIZE)); //creates the opening left edge
+        g.draw(new Line2D.Double(0, SIZE, SIZE, SIZE)); //creates the bottom edge
+        g.draw(new Line2D.Double(SIZE, 0, SIZE, SIZE - rowSp)); //right edge
         
         //the right and left edges both have the entrance/exis
         
@@ -49,8 +58,8 @@ public class DrawMaze extends Canvas {
         {
             for(int j = 0; j < n -1; j++) //iterates through the x axis
             {
-                g.drawLine((j + 1)*rowSp, i * colSp, (j + 1) * rowSp, 
-                        (i + 1) * colSp);
+                g.draw(new Line2D.Double((j + 1)*rowSp, i * colSp, 
+                    (j + 1) * rowSp, (i + 1) * colSp));
             }
         }
         
@@ -62,7 +71,7 @@ public class DrawMaze extends Canvas {
         {
             for(int j = 0; j < n; j++)
             {
-                g.drawLine(j*rowSp, i*colSp, (j + 1) *rowSp, i * colSp);
+                g.draw(new Line2D.Double(j*rowSp, i*colSp, (j + 1) *rowSp, i * colSp));
             }
         }
         
