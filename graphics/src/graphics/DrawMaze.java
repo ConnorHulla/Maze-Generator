@@ -19,8 +19,8 @@ public class DrawMaze extends Canvas {
     int m,n;
     
     DrawMaze() {
-        m = 4;
-        n = 4;
+        m = 11;
+        n = 7;
     }
     
     DrawMaze(int x, int y) {
@@ -38,6 +38,7 @@ public class DrawMaze extends Canvas {
         //how I derived this formula will be in the readme
         int size = 4*m*n - 2*n - 2*m; 
         //the wonky formula below is there because I wanted to round up (not down) with my integers
+        
         double rowSp = SIZE/m, colSp = SIZE/n;
         
         g.setColor(Color.red);    //set the color to red
@@ -53,13 +54,13 @@ public class DrawMaze extends Canvas {
   
         
         
-        //draws all of the horizontal lines
+        //draws all of the vertical lines
         for(int i = 0; i < m; i++) //iterates through the y axis
         {
             for(int j = 0; j < n -1; j++) //iterates through the x axis
             {
-                g.draw(new Line2D.Double((j + 1)*rowSp, i * colSp, 
-                    (j + 1) * rowSp, (i + 1) * colSp));
+                g.draw(new Line2D.Double((j + 1)*colSp, i * rowSp, 
+                    (j + 1) * colSp, (i + 1) * rowSp));
             }
         }
         
@@ -67,11 +68,11 @@ public class DrawMaze extends Canvas {
         //rowSp pixels. If we wanna move down 2 rows, we do 2 * rowSp
         
         //this prints all of the horizontal lines
-        for(int i = 1; i < n; i++)
+        for(int i = 1; i < m; i++)
         {
             for(int j = 0; j < n; j++)
             {
-                g.draw(new Line2D.Double(j*rowSp, i*colSp, (j + 1) *rowSp, i * colSp));
+                g.draw(new Line2D.Double(j*colSp, i*rowSp, (j + 1) *colSp, i *rowSp));
             }
         }
         
