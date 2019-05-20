@@ -91,7 +91,7 @@ public class GraphicsTest extends JFrame {
         //if we want to access our methods, set thte canvas equal like htis
         DrawMaze maze = new DrawMaze();
         canvas = maze;
-        canvas.setSize(401, 401);
+        canvas.setSize(410, 410);
         center.add(canvas);
         center.setVisible(true);
 
