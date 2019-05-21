@@ -8,14 +8,17 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import java.awt.Graphics;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import static javax.swing.JFrame.EXIT_ON_CLOSE;
-
+import adjacencymatrix.AdjacencyMatrix;
 import javax.swing.SwingUtilities;
 
 public class MazeHolder extends JFrame {
     private JButton backButton, genMaze, idk; //north buttons
     private JButton DFS, BFS, ShortestPath; //south buttons
     private Canvas canvas;
+    private Menu prev; //used to go back to the first screen
+    private AdjacencyMatrix graph;
     //dfs = depth first search, bfs = breadth first search, 
     //shortest path will probably use dijkstra
     
@@ -23,7 +26,8 @@ public class MazeHolder extends JFrame {
     //private Canvas mazeHolder;
     private int m, n;
     //m = rows, n = cols, m x n maze
-    MazeHolder() {
+    
+    public MazeHolder() {
         
         /*plan, put a flow layout north and south for added buttons
         south might contain a button for dfs, bfs, and shortest path
@@ -38,9 +42,12 @@ public class MazeHolder extends JFrame {
         pack();
         setLocationRelativeTo(null);
         setResizable(false);
+        
+        
+        graph = new AdjacencyMatrix(m, n);
     }
     
-    MazeHolder(int r, int c) {
+    public MazeHolder(int r, int c, Menu hold) {
 
         m = r; n = c;
         
@@ -50,6 +57,7 @@ public class MazeHolder extends JFrame {
         pack();
         setLocationRelativeTo(null);
         setResizable(false);
+        prev = hold;
         
     }
 
@@ -60,7 +68,7 @@ public class MazeHolder extends JFrame {
         //north
         JPanel north = new JPanel();
         
-        backButton = new JButton("Back Button");
+        backButton = new JButton("Back");
         genMaze = new JButton("Generate Maze");
         idk = new JButton("idk");
         
@@ -79,6 +87,7 @@ public class MazeHolder extends JFrame {
         BFS = new JButton("Breadth First Search");
         ShortestPath = new JButton("Shortest Path");
         
+        backButton.addActionListener(new BackListener());
         
         //add the buttons to the south frame
         south.add(DFS);
@@ -121,6 +130,16 @@ public class MazeHolder extends JFrame {
             new MazeHolder().setVisible(true);
         });
         
+    }
+
+    //press the back button to go to the menu
+    private class BackListener implements ActionListener {
+        
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            setVisible(false);
+            prev.setVisible(true);
+        }
     }
     
     

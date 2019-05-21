@@ -15,7 +15,7 @@ import javax.swing.SwingUtilities;
 
 
 public class Menu extends JFrame {
-    
+    private Menu hold;
     private JButton submit;                       //enter button
     private JTextField rowField, columnField;     //text field for rows/columns
     private JLabel rowLabel, columnLabel;
@@ -57,7 +57,8 @@ public class Menu extends JFrame {
         submit = new JButton("Submit");
         submit.addActionListener(new SubmitListener());
         panel.add(submit);
-
+        
+        hold = this;
 
     }
     
@@ -111,12 +112,15 @@ public class Menu extends JFrame {
            }
            
            
-           MazeHolder mazeWindow = new MazeHolder(rownum, colnum);
+           MazeHolder mazeWindow = new MazeHolder(rownum, colnum, hold);
           
-           mazeWindow.setVisible(true);
-           
+           mazeWindow.setVisible(true);      
            setVisible(false);
+     
+           rowField.setText("");
+           columnField.setText("");  //clears our fields
            
+        
            System.out.println("Rows: " + rownum + " Columns: " + colnum);
        }
     }
