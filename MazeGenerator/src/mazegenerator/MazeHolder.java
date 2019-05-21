@@ -141,12 +141,13 @@ public class MazeHolder extends JFrame {
         public void actionPerformed(ActionEvent e) {
             setVisible(false);
             prev.setVisible(true);
+            maze = null;
         }
     }
     private class MazeListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            maze = new DrawMaze(m, n);
+            maze.genNew();
         }
     }
     

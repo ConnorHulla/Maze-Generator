@@ -19,8 +19,8 @@ public class DrawMaze extends Canvas {
     int m,n;
     
     DrawMaze() {
-        m = 11;
-        n = 7;
+        m = 69;
+        n = 69;
     }
     
     DrawMaze(int x, int y) {

@@ -32,13 +32,22 @@ public class DrawMaze extends Canvas {
         m = x;
         n = y;
         size = 2*m*n - n - m;
-        edgeSet = new UnionFind(m *n);
-        maze = new AdjacencyMatrix(m*n);
-        
         getEdgeList();
         shuffle();
         generateMaze();
+     
     }
+    
+    public void genNew() {
+        edgeSet = null;
+        maze = null;
+        
+        shuffle();
+        generateMaze();
+        
+        repaint();
+    }
+   
     
     @Override
     public void paint(Graphics graphics){
@@ -99,6 +108,9 @@ public class DrawMaze extends Canvas {
     }
     
     private void generateMaze() {
+        maze = new AdjacencyMatrix(m*n);
+        edgeSet = new UnionFind(m *n);
+
         int p1 = 0, p2 = 0; //designed to hold return values for find
         for(int i = 0; i < allPairs.length; i++)
         {
