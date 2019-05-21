@@ -9,33 +9,40 @@ import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.RenderingHints;
 import java.awt.geom.Line2D;
-
+import adjacencymatrix.AdjacencyMatrix;
+import disjointset.UnionFind;
 
 public class DrawMaze extends Canvas {
    
     private final double SIZE = 400.0;
     private int [][] allPairs;
+    private int size;
+    private AdjacencyMatrix maze; //graph that keeps track of removed edges
+    private UnionFind edgeSet; 
     
     //m = rows, n = columns, just like a standard matrix!
-    private int m,n;
+    private final int m,n;
     
     public DrawMaze() {
-        m = 10;
-        n = 10;
+        this(10, 10);
     }
     
     public DrawMaze(int x, int y) {
         m = x;
         n = y;
+        size = 2*m*n - n - m;
+        edgeSet = new UnionFind(m *n);
+        maze = new AdjacencyMatrix(m*n);
+        
         getEdgeList();
+        shuffle();
+        generateMaze();
     }
     
     @Override
     public void paint(Graphics graphics){
         Graphics2D g = (Graphics2D)graphics;
-
         //we need to generate the size of our array
         //how I derived this formula will be in the readme
         
@@ -54,46 +61,92 @@ public class DrawMaze extends Canvas {
         //runs 4 times
   
         
-        
+        int curnum = 0;
         //draws all of the vertical lines
         for(int i = 0; i < m; i++) //iterates through the y axis
         {
             for(int j = 0; j < n -1; j++) //iterates through the x axis
             {
-                g.draw(new Line2D.Double((j + 1)*colSp, i * rowSp, 
-                    (j + 1) * colSp, (i + 1) * rowSp));
+                if(maze.isConnected(curnum, curnum+1) == false)
+                {
+                    g.draw(new Line2D.Double((j + 1)*colSp, i * rowSp, 
+                        (j + 1) * colSp, (i + 1) * rowSp));
+                }
+                curnum++;
             }
+            curnum++;
         }
         
         //think of rowSp and colSp as our units, and down a row, we move down
         //rowSp pixels. If we wanna move down 2 rows, we do 2 * rowSp
         
         //this prints all of the horizontal lines
+        
+        curnum = 0;
         for(int i = 1; i < m; i++)
         {
             for(int j = 0; j < n; j++)
             {
-                g.draw(new Line2D.Double(j*colSp, i*rowSp, 
-                        (j + 1) *colSp, i *rowSp));
+                if(maze.isConnected(curnum, curnum + n) == false)
+                {
+                    g.draw(new Line2D.Double(j*colSp, i*rowSp, 
+                            (j + 1) *colSp, i *rowSp));
+                }
+                curnum++;
             }
         }
         
     }
     
-    private void shuffle() {
-        
+    private void generateMaze() {
+        int p1 = 0, p2 = 0; //designed to hold return values for find
+        for(int i = 0; i < allPairs.length; i++)
+        {
+           p1 = allPairs[i][0];
+           p2 = allPairs[i][1];
+           
+           if(edgeSet.union(p1, p2))
+           {
+               maze.connect(p1, p2);
+               maze.connect(p2, p1);
+           }
+        }
     }
     
-    private void printList() {
-        for(int i = 0; i < 2*m*n - n - m; i++)
+    //this function will shuffle our array of edges (allPairs)
+    private void shuffle() {
+        
+        int rand1, rand2, hold1, hold2;
+        java.util.Random generator = new java.util.Random();
+        
+        
+        //randomly swaps elements of the array
+        for(int i = 0; i < size; i++)
+        {
+            //generates 2 random numbers
+            rand1 = generator.nextInt(size);
+            rand2 = generator.nextInt(size);
+            
+            //swap the 2 elements
+            hold1 = allPairs[rand1][0];
+            hold2 = allPairs[rand1][1];
+            
+            allPairs[rand1][0] = allPairs[rand2][0];
+            allPairs[rand1][1] = allPairs[rand2][1];
+            
+            allPairs[rand2][0] = hold1;
+            allPairs[rand2][1] = hold2;
+        }
+    }
+    
+    private void printList() 
+    {
+        for(int i = 0; i < allPairs.length; i++)
         {
            System.out.println("(" + allPairs[i][0] + "," + allPairs[i][1] + ")");
         }
     }
     private void getEdgeList() {
-        //get the number of edges in our array
-        int size = 2*m*n - n - m; 
-        //How this formula was derived will be provided in the readme
         allPairs  = new int [size][2];
         int pairIndex = 0, curPair = 0;
         //9 cases of edges
@@ -131,8 +184,7 @@ public class DrawMaze extends Canvas {
                 }
                 curPair++;
             }
-        }
-        
+        }        
     }
     
     

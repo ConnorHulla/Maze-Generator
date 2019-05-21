@@ -19,10 +19,12 @@ public class MazeHolder extends JFrame {
     private Canvas canvas;
     private Menu prev; //used to go back to the first screen
     private AdjacencyMatrix graph;
+    private DrawMaze maze;
+    private Graphics d;
     //dfs = depth first search, bfs = breadth first search, 
     //shortest path will probably use dijkstra
     
-    private Graphics maze;
+    //private Graphics maz;
     //private Canvas mazeHolder;
     private int m, n;
     //m = rows, n = cols, m x n maze
@@ -44,7 +46,6 @@ public class MazeHolder extends JFrame {
         setResizable(false);
         
         
-        graph = new AdjacencyMatrix(m, n);
     }
     
     public MazeHolder(int r, int c, Menu hold) {
@@ -72,6 +73,7 @@ public class MazeHolder extends JFrame {
         genMaze = new JButton("Generate Maze");
         idk = new JButton("idk");
         
+        genMaze.addActionListener(new MazeListener());
         
         north.add(backButton);
         north.add(genMaze);
@@ -104,7 +106,7 @@ public class MazeHolder extends JFrame {
         equal to it, set the size of our canvas, add the canvas to our center,
         and we done*/
         //if we want to access our methods, set thte canvas equal like htis
-        DrawMaze maze = new DrawMaze(m,n);
+        maze = new DrawMaze(m,n);
         canvas = maze;
         canvas.setSize(410, 410);
         center.add(canvas);
@@ -139,6 +141,12 @@ public class MazeHolder extends JFrame {
         public void actionPerformed(ActionEvent e) {
             setVisible(false);
             prev.setVisible(true);
+        }
+    }
+    private class MazeListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            maze = new DrawMaze(m, n);
         }
     }
     
