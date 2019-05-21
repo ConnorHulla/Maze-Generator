@@ -36,6 +36,11 @@ public class AdjacencyMatrix {
         matrix[source][destination] = false;
     } 
     
+    public void clear() 
+    { 
+        matrix = null; 
+    }
+    
 
     
     //print 1 for true, 0 for false

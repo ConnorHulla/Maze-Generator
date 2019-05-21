@@ -15,6 +15,10 @@ public class UnionFind {
             set[i] = -1;
     }
     
+    public void clear() {
+        set = null;
+    }
+    
     public int find(int n) throws java.lang.IllegalArgumentException 
     {
        

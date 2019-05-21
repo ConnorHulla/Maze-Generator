@@ -139,9 +139,11 @@ public class MazeHolder extends JFrame {
         
         @Override
         public void actionPerformed(ActionEvent e) {
+            maze.clear();
             setVisible(false);
             prev.setVisible(true);
             maze = null;
+            System.gc(); //calls the garbage collector
         }
     }
     private class MazeListener implements ActionListener {

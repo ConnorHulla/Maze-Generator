@@ -28,6 +28,15 @@ public class DrawMaze extends Canvas {
         this(10, 10);
     }
     
+    public void clear() 
+    {
+        maze.clear();
+        allPairs = null;
+        maze = null;
+        edgeSet.clear();
+        edgeSet = null;
+    }
+    
     public DrawMaze(int x, int y) {
         m = x;
         n = y;
