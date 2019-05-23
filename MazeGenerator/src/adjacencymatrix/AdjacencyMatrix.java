@@ -80,6 +80,8 @@ public class AdjacencyMatrix {
         return paths;
     }
     
+    //depth first tarversal
+    
     private void findPathD(boolean [] visited, ArrayList<Integer> paths, int curNode, 
             int dest)
     {
@@ -104,6 +106,42 @@ public class AdjacencyMatrix {
         }
         
         visited[curNode] = false;
+    }
+    //finds the next integer we haven't visited yet
+    
+    private int nextMin(int source, int [] parent)
+    {
+        List<Integer> findmin = getNeighbors(source);
+        int min = Integer.MAX_VALUE;
+        
+        //find the minimum value we haven't visited yet
+        for (Integer findmin1 : findmin) 
+        {
+            if(parent[findmin1] != -1 && findmin1 < min)
+                min = findmin1;
+           
+        }
+        
+        return min;
+    } 
+    
+    public ArrayList<Integer> dijkstra(int src, int dest)
+    {
+        ArrayList<Integer> path = new ArrayList<>();
+        int [] parents = new int[size];
+        
+        int dist [] = new int[size];
+        
+        //initialize our arrays
+        for(int i = 0; i < size; i++)
+        {
+            parents[i] = -1;
+            dist[i] = Integer.MAX_VALUE;
+        }
+        
+        dist[src] = 0; //distance to itself is always 0
+                        
+        return path;
     }
             
 }

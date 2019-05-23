@@ -10,17 +10,31 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.geom.Line2D;
-import adjacencymatrix.AdjacencyMatrix;
 import disjointset.UnionFind;
+import java.awt.geom.Rectangle2D;
+import java.util.List;
+import org.jgrapht.Graph;
+import org.jgrapht.GraphPath;
+import org.jgrapht.graph.DefaultEdge;
+import org.jgrapht.graph.SimpleGraph;
+import static org.jgrapht.alg.shortestpath.DijkstraShortestPath.findPathBetween;
+import org.jgrapht.alg.shortestpath.AllDirectedPaths;
+import org.jgrapht.graph.DefaultDirectedGraph;
 
 public class DrawMaze extends Canvas {
    
-    private final double SIZE = 400.0;
+    private final double SIZE;
     private int [][] allPairs;
     private int size;
-    private AdjacencyMatrix maze; //graph that keeps track of removed edges
     private UnionFind edgeSet; 
-    
+    private boolean drawShortest, drawAll;
+    private Graph<Integer, DefaultEdge> maze; //graph that keeps track of my maze
+    private int pathnum;
+    private List<GraphPath<Integer, DefaultEdge>> listAllPaths;
+    private AllDirectedPaths allpaths;
+    private int numclicks; //tells us if the submit button has been clicked
+    private boolean multipleSolutions; //tells us if we should allow multiple solutions in our maze
+    private int numpaths; //stores the number of paths you can take to solve the maze
     //m = rows, n = columns, just like a standard matrix!
     private final int m,n;
     
@@ -28,9 +42,37 @@ public class DrawMaze extends Canvas {
         this(10, 10);
     }
     
+    
+    
+    public void shortestPath() {
+        drawShortest = drawShortest == false;
+        
+        repaint();
+    }
+    
+    public void allPaths() {
+        
+        if(numclicks == 0)
+        {
+            AllDirectedPaths allpaths = new AllDirectedPaths(maze);
+            listAllPaths = allpaths.getAllPaths(0, m*n -1, true, Integer.MAX_VALUE);
+            numpaths = listAllPaths.size();
+        }
+        drawAll = true;
+        
+        repaint();
+        
+        numclicks++;
+        pathnum++;
+    }
+    
+    public void setMultiple(boolean t) 
+    {
+        multipleSolutions = t;
+    }
+    
     public void clear() 
     {
-        maze.clear();
         allPairs = null;
         maze = null;
         edgeSet.clear();
@@ -43,17 +85,28 @@ public class DrawMaze extends Canvas {
         size = 2*m*n - n - m;
         getEdgeList();
         shuffle();
-        generateMaze();
-     
+        genMaze();
+        drawShortest = false;
+        SIZE = 400;
+        pathnum = 0;
+        numclicks = 0;
     }
     
     public void genNew() {
         edgeSet = null;
         maze = null;
-        
+        pathnum = 0;
+        numclicks = 0;
+        listAllPaths = null;
+        allpaths = null;
+        drawAll = false;
         shuffle();
-        generateMaze();
-        
+        if(!multipleSolutions)
+            genMaze();
+        else
+        {
+            genMazeMultiPaths();
+        }
         repaint();
     }
    
@@ -65,27 +118,50 @@ public class DrawMaze extends Canvas {
         //how I derived this formula will be in the readme
         
         double rowSp = SIZE/m, colSp = SIZE/n;
-       
-        //these next 5 lines draw the borders
-        g.setColor(Color.red);    //set the color to red
+               
+
+        
+
+        if(drawAll == true)
+        {
+            //if we've gone through every path, reset
+            if(pathnum == listAllPaths.size())
+            {
+                pathnum = 0;        
+                drawAll = false;
+            }
+            //put our path of paths in listAllPaths
+            else  //othrwise, print the next path
+            {
+                g.setColor(Color.GREEN);
+                drawPath(listAllPaths.get(pathnum).getVertexList(), g, rowSp, colSp);
+            }
+            
+
+        }
+        
+        //draw the shortest path
+        if(drawShortest == true)
+        {        
+            g.setColor(Color.BLUE);
+            drawPath(findPathBetween(maze, 0, m*n -1).getVertexList(), g, 
+                    rowSp, colSp);
+        }
+        
+
+        g.setColor(Color.red);  
         g.draw(new Line2D.Double(0, 0, SIZE , 0)); //top border
         g.draw(new Line2D.Double(0, rowSp, 0, SIZE)); //creates the opening left edge
         g.draw(new Line2D.Double(0, SIZE, SIZE, SIZE)); //creates the bottom edge
         g.draw(new Line2D.Double(SIZE, 0, SIZE, SIZE - rowSp)); //right edge
-        //Line2D.Double draws more accurate lines than integer values will allow
-        //the right and left edges both have the entrance/exis
-        
-        //the first row of lines:
-        //runs 4 times
-  
-        
         int curnum = 0;
+
         //draws all of the vertical lines
         for(int i = 0; i < m; i++) //iterates through the y axis
         {
             for(int j = 0; j < n -1; j++) //iterates through the x axis
             {
-                if(maze.isConnected(curnum, curnum+1) == false)
+                if(maze.containsEdge(curnum, curnum+1) == false)
                 {
                     g.draw(new Line2D.Double((j + 1)*colSp, i * rowSp, 
                         (j + 1) * colSp, (i + 1) * rowSp));
@@ -105,31 +181,136 @@ public class DrawMaze extends Canvas {
         {
             for(int j = 0; j < n; j++)
             {
-                if(maze.isConnected(curnum, curnum + n) == false)
+                if(maze.containsEdge(curnum, curnum + n) == false)
                 {
                     g.draw(new Line2D.Double(j*colSp, i*rowSp, 
                             (j + 1) *colSp, i *rowSp));
                 }
                 curnum++;
             }
-        }
+        }        
         
     }
     
-    private void generateMaze() {
-        maze = new AdjacencyMatrix(m*n);
+   
+    private void drawPath(List<Integer> path, Graphics2D g, double rowSp, double colSp) {
+        double curcol = 0.0, currow = 0.0;
+        //returns a path using depth first search
+        
+        int curnum = 0, prevnum;
+        g.fill(new Rectangle2D.Double(0, 0, rowSp, colSp));
+        //print rectangles on every element in our path
+        for(int i = 1; i < path.size(); i++)
+        {
+            prevnum = curnum;     //hold onto our previous number
+            curnum = path.get(i); //get the next item in our path
+
+            if(prevnum + 1 == curnum)       //move right
+            {
+                curcol = curcol + colSp;
+            }
+            else if (prevnum - 1 == curnum) //move left
+            {
+               curcol = curcol - colSp;
+            }
+            else if (prevnum - n == curnum) 
+            {
+                currow = currow - rowSp;
+            }
+            else
+            {
+                currow = currow + rowSp;
+            }
+
+            g.fill(new Rectangle2D.Double(curcol, currow, colSp
+                    , rowSp));
+
+        }
+            
+        
+    }
+    //generate a maze but allow for multiple solutions
+    private void genMazeMultiPaths() {        
+         
+        //clone the array
+        int [][] deletedPairs = allPairs.clone();
+        for(int i = 0; i < deletedPairs.length; i++)
+        {
+            deletedPairs[i] = deletedPairs[i].clone();
+        }
+
+        
+        maze = new DefaultDirectedGraph<>(DefaultEdge.class);
         edgeSet = new UnionFind(m *n);
 
         int p1 = 0, p2 = 0; //designed to hold return values for find
+        /*iterate through our list of potential walls, remove them with the logic
+        inside the forloop. we wont remove all edges, just enough to make it such
+        that you can get from your source vertext to any other */
         for(int i = 0; i < allPairs.length; i++)
         {
+            //get the next edge
            p1 = allPairs[i][0];
            p2 = allPairs[i][1];
            
+           //if the edges arent in our graph, add them
+           if(!maze.containsVertex(p1))
+                maze.addVertex(p1);
+           if(!maze.containsVertex(p2))
+                maze.addVertex(p2);
+           
+           //if you already couldn't get from p1 to p2, remove the wall
+           //if it was already possible to get form p1 to p2, dont add the wall
            if(edgeSet.union(p1, p2))
            {
-               maze.connect(p1, p2);
-               maze.connect(p2, p1);
+               maze.addEdge(p1, p2);
+               maze.addEdge(p2, p1);
+               deletedPairs[i][0] = -1; //mark this as deleted
+           }
+        }
+        
+        
+        //randomly delete edges to create more paths
+        for(int i = 0; i < deletedPairs.length; i++) 
+        {
+            if(deletedPairs[i][0] == -1)
+                continue;
+            
+            if(Math.random() < findOdds()) //probability of an edge getting removed
+            {
+                maze.addEdge(deletedPairs[i][0], deletedPairs[i][1]);
+                maze.addEdge(deletedPairs[i][1], deletedPairs[i][0]);
+            }
+        }
+        deletedPairs = null;
+    }
+    
+    private void genMaze() {
+        maze = new DefaultDirectedGraph<>(DefaultEdge.class);
+        edgeSet = new UnionFind(m *n);
+
+        int p1 = 0, p2 = 0; //designed to hold return values for find
+        /*iterate through our list of potential walls, remove them with the logic
+        inside the forloop. we wont remove all edges, just enough to make it such
+        that you can get from your source vertext to any other */
+        for(int i = 0; i < allPairs.length; i++)
+        {
+            //get the next edge
+           p1 = allPairs[i][0];
+           p2 = allPairs[i][1];
+           
+           //if the edges arent in our graph, add them
+           if(!maze.containsVertex(p1))
+                maze.addVertex(p1);
+           if(!maze.containsVertex(p2))
+                maze.addVertex(p2);
+           
+           //if you already couldn't get from p1 to p2, remove the wall
+           //if it was already possible to get form p1 to p2, dont add the wall
+           if(edgeSet.union(p1, p2))
+           {
+               maze.addEdge(p1, p2);
+               maze.addEdge(p2, p1);
            }
         }
     }
@@ -167,6 +348,7 @@ public class DrawMaze extends Canvas {
            System.out.println("(" + allPairs[i][0] + "," + allPairs[i][1] + ")");
         }
     }
+    
     private void getEdgeList() {
         allPairs  = new int [size][2];
         int pairIndex = 0, curPair = 0;
@@ -208,6 +390,43 @@ public class DrawMaze extends Canvas {
         }        
     }
     
+    public int getNumPaths() { return numpaths; } 
+    public int getCurPath()  { return pathnum; } 
+    //returns the idnex of the current path
     
+    /*this will help us find the odds of an edge getting deleted.
+    the value is based on the size of the array, the values are arbitrary
+   but they were tested and they work well on average */
+    private double findOdds()
+    {
+        double percent = 0.0;
+
+        if(m*n >= 18222)            
+            percent = .0006;
+        else if(m*n >= 8100)
+            percent = .0015;
+        else if(m*n >= 6400)
+            percent = .002;
+        else if(m*n >= 4900)
+            percent = .0035;
+        else if(m*n >= 3600)
+            percent = .0038;
+        else if(m*n >= 2500)
+            percent = .0045;
+        else if(m*n >= 1600)
+            percent = .0055;
+        else if(m*n >= 900)
+            percent = .0065;
+        else if(m*n >= 676)
+            percent = .016;
+        else if(m*n >= 225)
+            percent = .025;
+        else if(m*n >= 100)
+            percent = .045;
+        else
+            percent = .1;
+        return percent;
+    }
     
+
 }

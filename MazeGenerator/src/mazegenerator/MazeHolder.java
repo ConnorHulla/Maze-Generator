@@ -10,19 +10,22 @@ import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import static javax.swing.JFrame.EXIT_ON_CLOSE;
-import adjacencymatrix.AdjacencyMatrix;
+import javax.swing.JLabel;
+import javax.swing.JToggleButton;
 import javax.swing.SwingUtilities;
 
+
+
 public class MazeHolder extends JFrame {
-    private JButton backButton, genMaze, idk; //north buttons
-    private JButton DFS, BFS, ShortestPath; //south buttons
+    private JButton backButton, genMaze; //north buttons
+    private JButton AllPaths, ShortestPath; //south buttons
+    private JToggleButton toggleMult; //will allow the user to allow the algorithm to produce mazes with multiple solutions
     private Canvas canvas;
     private Menu prev; //used to go back to the first screen
-    private AdjacencyMatrix graph;
+    private JLabel curpath;
+    //private AdjacencyMatrix graph;
     private DrawMaze maze;
     private Graphics d;
-    //dfs = depth first search, bfs = breadth first search, 
-    //shortest path will probably use dijkstra
     
     //private Graphics maz;
     //private Canvas mazeHolder;
@@ -71,13 +74,17 @@ public class MazeHolder extends JFrame {
         
         backButton = new JButton("Back");
         genMaze = new JButton("Generate Maze");
-        idk = new JButton("idk");
+        toggleMult = new JToggleButton("Allow Multiple Solutions");
+        
+        toggleMult.addActionListener((ActionEvent e) -> {
+            maze.setMultiple(toggleMult.isSelected());
+        });
         
         genMaze.addActionListener(new MazeListener());
         
         north.add(backButton);
         north.add(genMaze);
-        north.add(idk);
+        north.add(toggleMult);
        
         north.setVisible(true);
         panel.add(north, BorderLayout.NORTH); //adds our north panel to north
@@ -85,16 +92,25 @@ public class MazeHolder extends JFrame {
         //set up our south panel
         JPanel south = new JPanel();
         
-        DFS = new JButton("Depth First Search");
-        BFS = new JButton("Breadth First Search");
+        curpath = new JLabel("");
+        AllPaths = new JButton("All Paths");
         ShortestPath = new JButton("Shortest Path");
         
         backButton.addActionListener(new BackListener());
         
+        ShortestPath.addActionListener((ActionEvent e) -> {  
+            maze.shortestPath();
+        });
+        
+        AllPaths.addActionListener((ActionEvent e) -> {
+            maze.allPaths();
+            curpath.setText("Path # " + maze.getCurPath() 
+                    + " out of " + maze.getNumPaths());
+        });
         //add the buttons to the south frame
-        south.add(DFS);
-        south.add(BFS);
         south.add(ShortestPath);
+        south.add(AllPaths);
+        south.add(curpath);
         south.setVisible(true);
         
      
@@ -108,7 +124,9 @@ public class MazeHolder extends JFrame {
         //if we want to access our methods, set thte canvas equal like htis
         maze = new DrawMaze(m,n);
         canvas = maze;
+        
         canvas.setSize(410, 410);
+        
         center.add(canvas);
         center.setVisible(true);
 
