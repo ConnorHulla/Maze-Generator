@@ -27,13 +27,11 @@ public class MazeHolder extends JFrame {
     //private AdjacencyMatrix graph;
     private DrawMaze maze;
     private Graphics d;
-    private boolean isEnabled = false;
     private boolean showPaths = false;
     //private Graphics maz;
     //private Canvas mazeHolder;
-    private int m, n;
     //m = rows, n = cols, m x n maze
-    
+    private int m, n;
     public MazeHolder() {
         
         /*plan, put a flow layout north and south for added buttons
