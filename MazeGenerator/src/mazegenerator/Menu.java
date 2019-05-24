@@ -24,7 +24,7 @@ public class Menu extends JFrame {
         createGUI();
         
          //set the properties of our GUI
-        setTitle("Enter the rows/columns");
+        setTitle("Maze generator by Connor Hulla");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         pack();
         setLocationRelativeTo(null);
@@ -109,6 +109,15 @@ public class Menu extends JFrame {
                  "Your row/column numbers must be greater than 1");
                 
                 return;
+           }
+           
+           if(rownum > 200 || colnum > 200)
+           {                
+                JOptionPane.showMessageDialog(new JFrame(),
+                 "Your row/column numbers must be less than 200");
+                
+                return;
+               
            }
            
            

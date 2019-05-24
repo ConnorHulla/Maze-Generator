@@ -121,15 +121,14 @@ public class MazeHolder extends JFrame {
         ShortestPath.addActionListener((ActionEvent e)->{maze.shortestPath();});
         
         AllPaths.addActionListener((ActionEvent e) -> {
-            showPaths = showPaths == false;
-            isEnabled = isEnabled == false;
+            showPaths = maze.willDrawAll() == false;
             maze.displayAll(showPaths);
             maze.allPaths();
             curpath.setText("Path # " + (maze.getCurPath() + 1)
                     + " out of " + maze.getNumPaths());
          
-            prevpath.setEnabled(isEnabled);
-            nextpath.setEnabled(isEnabled);
+            prevpath.setEnabled(showPaths);
+            nextpath.setEnabled(showPaths);
         });
         
         
@@ -192,6 +191,7 @@ public class MazeHolder extends JFrame {
     private class MazeListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
+            curpath.setText("");
             maze.genNew();
         }
     }

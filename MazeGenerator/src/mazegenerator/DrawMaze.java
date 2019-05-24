@@ -62,6 +62,7 @@ public class DrawMaze extends Canvas {
         numclicks++;
     }
     public void displayAll(boolean t) { drawAll = t; }
+    public boolean willDrawAll() { return drawAll; }
     public void setMultiple(boolean t) 
     {
         multipleSolutions = t;
