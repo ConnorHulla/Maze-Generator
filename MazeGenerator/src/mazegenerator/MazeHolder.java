@@ -3,6 +3,7 @@ package mazegenerator;
 
 import java.awt.BorderLayout;
 import java.awt.Canvas;
+import java.awt.Dimension;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -18,7 +19,7 @@ import javax.swing.SwingUtilities;
 
 public class MazeHolder extends JFrame {
     private JButton backButton, genMaze; //north buttons
-    private JButton AllPaths, ShortestPath; //south buttons
+    private JButton AllPaths, ShortestPath, prevpath, nextpath; //south buttons
     private JToggleButton toggleMult; //will allow the user to allow the algorithm to produce mazes with multiple solutions
     private Canvas canvas;
     private Menu prev; //used to go back to the first screen
@@ -26,7 +27,8 @@ public class MazeHolder extends JFrame {
     //private AdjacencyMatrix graph;
     private DrawMaze maze;
     private Graphics d;
-    
+    private boolean isEnabled = false;
+    private boolean showPaths = false;
     //private Graphics maz;
     //private Canvas mazeHolder;
     private int m, n;
@@ -68,7 +70,8 @@ public class MazeHolder extends JFrame {
     private void buildGUI() {
         JPanel panel = new JPanel();
         panel.setLayout(new BorderLayout());
-        
+        panel.setPreferredSize(new Dimension(500, 480));
+        int index = 0; //index for path
         //north
         JPanel north = new JPanel();
         
@@ -95,21 +98,46 @@ public class MazeHolder extends JFrame {
         curpath = new JLabel("");
         AllPaths = new JButton("All Paths");
         ShortestPath = new JButton("Shortest Path");
+        prevpath = new JButton("<--- Prev");
+        nextpath = new JButton("Next --->");
+        prevpath.setEnabled(false);
+        nextpath.setEnabled(false);
         
+        prevpath.addActionListener((ActionEvent e) -> { 
+            maze.decPath();
+            curpath.setText("Path # " + (maze.getCurPath() + 1)
+                    + " out of " + maze.getNumPaths());
+            maze.allPaths();
+        });
+        
+        nextpath.addActionListener((ActionEvent e) -> { 
+            maze.incPath(); 
+            curpath.setText("Path # " + (maze.getCurPath() + 1)
+                    + " out of " + maze.getNumPaths());
+            maze.allPaths();
+        });
         backButton.addActionListener(new BackListener());
         
-        ShortestPath.addActionListener((ActionEvent e) -> {  
-            maze.shortestPath();
-        });
+        ShortestPath.addActionListener((ActionEvent e)->{maze.shortestPath();});
         
         AllPaths.addActionListener((ActionEvent e) -> {
+            showPaths = showPaths == false;
+            isEnabled = isEnabled == false;
+            maze.displayAll(showPaths);
             maze.allPaths();
-            curpath.setText("Path # " + maze.getCurPath() 
+            curpath.setText("Path # " + (maze.getCurPath() + 1)
                     + " out of " + maze.getNumPaths());
+         
+            prevpath.setEnabled(isEnabled);
+            nextpath.setEnabled(isEnabled);
         });
+        
+        
         //add the buttons to the south frame
         south.add(ShortestPath);
         south.add(AllPaths);
+        south.add(prevpath);
+        south.add(nextpath);
         south.add(curpath);
         south.setVisible(true);
         
@@ -140,9 +168,6 @@ public class MazeHolder extends JFrame {
         
         getContentPane().add(panel);
     }
-    
-
-    
     
     public static void main(String[] args) {
         

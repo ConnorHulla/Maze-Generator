@@ -16,7 +16,6 @@ import java.util.List;
 import org.jgrapht.Graph;
 import org.jgrapht.GraphPath;
 import org.jgrapht.graph.DefaultEdge;
-import org.jgrapht.graph.SimpleGraph;
 import static org.jgrapht.alg.shortestpath.DijkstraShortestPath.findPathBetween;
 import org.jgrapht.alg.shortestpath.AllDirectedPaths;
 import org.jgrapht.graph.DefaultDirectedGraph;
@@ -35,7 +34,7 @@ public class DrawMaze extends Canvas {
     private int numclicks; //tells us if the submit button has been clicked
     private boolean multipleSolutions; //tells us if we should allow multiple solutions in our maze
     private int numpaths; //stores the number of paths you can take to solve the maze
-    //m = rows, n = columns, just like a standard matrix!
+    //m = rows, n = columns, just like a standard matrix
     private final int m,n;
     
     public DrawMaze() {
@@ -58,14 +57,11 @@ public class DrawMaze extends Canvas {
             listAllPaths = allpaths.getAllPaths(0, m*n -1, true, Integer.MAX_VALUE);
             numpaths = listAllPaths.size();
         }
-        drawAll = true;
-        
         repaint();
         
         numclicks++;
-        pathnum++;
     }
-    
+    public void displayAll(boolean t) { drawAll = t; }
     public void setMultiple(boolean t) 
     {
         multipleSolutions = t;
@@ -87,6 +83,7 @@ public class DrawMaze extends Canvas {
         shuffle();
         genMaze();
         drawShortest = false;
+        drawAll = false;
         SIZE = 400;
         pathnum = 0;
         numclicks = 0;
@@ -428,5 +425,31 @@ public class DrawMaze extends Canvas {
         return percent;
     }
     
+    public void setPath(int n)  { pathnum = n; } 
+   
+    public int getPathSize() {
+        if(listAllPaths == null)
+            return 0;
+        else
+            return listAllPaths.size();
+    } 
+    
+    public void incPath() {
+        if(listAllPaths == null)
+            pathnum = 0;
+        if(pathnum + 1 != listAllPaths.size())
+            pathnum++;
+        else
+            pathnum = 0;
+    }
+    
+    public void decPath() {
+        if(listAllPaths == null)
+            pathnum = 0;
+        else if(pathnum == 0)
+            pathnum = listAllPaths.size() - 1;
+        else
+            pathnum--;
+    }
 
 }
