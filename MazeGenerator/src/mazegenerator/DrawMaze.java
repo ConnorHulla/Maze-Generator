@@ -22,7 +22,7 @@ import org.jgrapht.graph.DefaultDirectedGraph;
 
 public class DrawMaze extends Canvas {
    
-    private final double SIZE;
+    private final float SIZE;
     private int [][] allPairs;
     private int size;
     private UnionFind edgeSet; 
@@ -115,7 +115,7 @@ public class DrawMaze extends Canvas {
         //we need to generate the size of our array
         //how I derived this formula will be in the readme
         
-        double rowSp = SIZE/m, colSp = SIZE/n;
+        float rowSp = SIZE/m, colSp = SIZE/n;
                
 
         
@@ -148,10 +148,10 @@ public class DrawMaze extends Canvas {
         
 
         g.setColor(Color.red);  
-        g.draw(new Line2D.Double(0, 0, SIZE , 0)); //top border
-        g.draw(new Line2D.Double(0, rowSp, 0, SIZE)); //creates the opening left edge
-        g.draw(new Line2D.Double(0, SIZE, SIZE, SIZE)); //creates the bottom edge
-        g.draw(new Line2D.Double(SIZE, 0, SIZE, SIZE - rowSp)); //right edge
+        g.draw(new Line2D.Float(0, 0, SIZE , 0)); //top border
+        g.draw(new Line2D.Float(0, rowSp, 0, SIZE)); //creates the opening left edge
+        g.draw(new Line2D.Float(0, SIZE, SIZE, SIZE)); //creates the bottom edge
+        g.draw(new Line2D.Float(SIZE, 0, SIZE, SIZE - rowSp)); //right edge
         int curnum = 0;
 
         //draws all of the vertical lines
@@ -161,7 +161,7 @@ public class DrawMaze extends Canvas {
             {
                 if(maze.containsEdge(curnum, curnum+1) == false)
                 {
-                    g.draw(new Line2D.Double((j + 1)*colSp, i * rowSp, 
+                    g.draw(new Line2D.Float((j + 1)*colSp, i * rowSp, 
                         (j + 1) * colSp, (i + 1) * rowSp));
                 }
                 curnum++;
@@ -181,7 +181,7 @@ public class DrawMaze extends Canvas {
             {
                 if(maze.containsEdge(curnum, curnum + n) == false)
                 {
-                    g.draw(new Line2D.Double(j*colSp, i*rowSp, 
+                    g.draw(new Line2D.Float(j*colSp, i*rowSp, 
                             (j + 1) *colSp, i *rowSp));
                 }
                 curnum++;
@@ -191,12 +191,12 @@ public class DrawMaze extends Canvas {
     }
     
    
-    private void drawPath(List<Integer> path, Graphics2D g, double rowSp, double colSp) {
-        double curcol = 0.0, currow = 0.0;
+    private void drawPath(List<Integer> path, Graphics2D g, float rowSp, float colSp) {
+        float curcol = 0, currow = 0;
         //returns a path using depth first search
         
         int curnum = 0, prevnum;
-        g.fill(new Rectangle2D.Double(0, 0, rowSp, colSp));
+        g.fill(new Rectangle2D.Float(0, 0, rowSp, colSp));
         //print rectangles on every element in our path
         for(int i = 1; i < path.size(); i++)
         {
@@ -220,7 +220,7 @@ public class DrawMaze extends Canvas {
                 currow = currow + rowSp;
             }
 
-            g.fill(new Rectangle2D.Double(curcol, currow, colSp
+            g.fill(new Rectangle2D.Float(curcol, currow, colSp
                     , rowSp));
 
         }
