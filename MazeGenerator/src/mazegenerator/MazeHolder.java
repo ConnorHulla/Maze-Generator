@@ -24,14 +24,10 @@ public class MazeHolder extends JFrame {
     private Canvas canvas;
     private Menu prev; //used to go back to the first screen
     private JLabel curpath;
-    //private AdjacencyMatrix graph;
     private DrawMaze maze;
     private Graphics d;
     private boolean showPaths = false;
-    //private Graphics maz;
-    //private Canvas mazeHolder;
-    //m = rows, n = cols, m x n maze
-    private int m, n;
+    private int rows, cols;
     public MazeHolder() {
         
         /*plan, put a flow layout north and south for added buttons
@@ -39,7 +35,7 @@ public class MazeHolder extends JFrame {
         north might contain a back button for the main menu, or a button
         that generates a new maze
         no east or west. You can add panels to each container */
-        m = 4; n = 4; //default size 4x4
+        rows = 4; cols = 4; //default size 4x4
         
         buildGUI();
         setTitle("Maze");
@@ -53,7 +49,7 @@ public class MazeHolder extends JFrame {
     
     public MazeHolder(int r, int c, Menu hold) {
 
-        m = r; n = c;
+        rows = r; cols = c;
         
         buildGUI();
         setTitle("Maze");
@@ -93,6 +89,7 @@ public class MazeHolder extends JFrame {
         //set up our south panel
         JPanel south = new JPanel();
         
+        //These are the buttons and their respective labels
         curpath = new JLabel("");
         AllPaths = new JButton("All Paths");
         ShortestPath = new JButton("Shortest Path");
@@ -101,13 +98,14 @@ public class MazeHolder extends JFrame {
         prevpath.setEnabled(false);
         nextpath.setEnabled(false);
         
+        //When the button is pressed, go to the previous path
         prevpath.addActionListener((ActionEvent e) -> { 
             maze.decPath();
             curpath.setText("Path # " + (maze.getCurPath() + 1)
                     + " out of " + maze.getNumPaths());
             maze.allPaths();
         });
-        
+        //when the button is pressed, go to the next path
         nextpath.addActionListener((ActionEvent e) -> { 
             maze.incPath(); 
             curpath.setText("Path # " + (maze.getCurPath() + 1)
@@ -115,6 +113,7 @@ public class MazeHolder extends JFrame {
             maze.allPaths();
         });
         backButton.addActionListener(new BackListener());
+        
         
         ShortestPath.addActionListener((ActionEvent e)->{maze.shortestPath();});
         
@@ -147,7 +146,7 @@ public class MazeHolder extends JFrame {
         equal to it, set the size of our canvas, add the canvas to our center,
         and we done*/
         //if we want to access our methods, set thte canvas equal like htis
-        maze = new DrawMaze(m,n);
+        maze = new DrawMaze(rows,cols);
         canvas = maze;
         
         canvas.setSize(410, 410);
@@ -176,7 +175,8 @@ public class MazeHolder extends JFrame {
 
     //press the back button to go to the menu
     private class BackListener implements ActionListener {
-        
+        //this function deletes some objects
+        //this needs to be done because really large mazes use lots of memory
         @Override
         public void actionPerformed(ActionEvent e) {
             maze.clear();
@@ -186,6 +186,7 @@ public class MazeHolder extends JFrame {
             System.gc(); //calls the garbage collector
         }
     }
+
     private class MazeListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {

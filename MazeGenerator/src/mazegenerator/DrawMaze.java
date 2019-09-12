@@ -24,7 +24,7 @@ public class DrawMaze extends Canvas {
    
     private final float SIZE;
     private int [][] allPairs;
-    private int size;
+    private int numEdges; //number of edges in our program
     private UnionFind edgeSet; 
     private boolean drawShortest, drawAll;
     private Graph<Integer, DefaultEdge> maze; //graph that keeps track of my maze
@@ -34,8 +34,7 @@ public class DrawMaze extends Canvas {
     private int numclicks; //tells us if the submit button has been clicked
     private boolean multipleSolutions; //tells us if we should allow multiple solutions in our maze
     private int numpaths; //stores the number of paths you can take to solve the maze
-    //m = rows, n = columns, just like a standard matrix
-    private final int m,n;
+    private final int rows,cols;
     
     public DrawMaze() {
         this(10, 10);
@@ -54,7 +53,7 @@ public class DrawMaze extends Canvas {
         if(numclicks == 0)
         {
             AllDirectedPaths allpaths = new AllDirectedPaths(maze);
-            listAllPaths = allpaths.getAllPaths(0, m*n -1, true, Integer.MAX_VALUE);
+            listAllPaths = allpaths.getAllPaths(0, rows*cols -1, true, Integer.MAX_VALUE);
             numpaths = listAllPaths.size();
         }
         repaint();
@@ -76,16 +75,18 @@ public class DrawMaze extends Canvas {
         edgeSet = null;
     }
     
-    public DrawMaze(int x, int y) {
-        m = x;
-        n = y;
-        size = 2*m*n - n - m;
+    public DrawMaze(int x, int y) 
+    {
+        rows = x;
+        cols = y;
+        //this formula gives you the number of edges
+        numEdges = 2*rows*cols - cols - rows;
         getEdgeList();
         shuffle();
         genMaze();
         drawShortest = false;
         drawAll = false;
-        SIZE = 400;
+        SIZE = 400; //constant, number of pixels we are dealing with
         pathnum = 0;
         numclicks = 0;
     }
@@ -112,14 +113,11 @@ public class DrawMaze extends Canvas {
     @Override
     public void paint(Graphics graphics){
         Graphics2D g = (Graphics2D)graphics;
-        //we need to generate the size of our array
-        //how I derived this formula will be in the readme
-        
-        float rowSp = SIZE/m, colSp = SIZE/n;
-               
+        /*The space (number of pixels) inbetween each row is rowSpacing
+        number of pixels inbetween columns is the colSpacing */
+        float rowSpacing = SIZE/rows, colSpacing = SIZE/cols;
 
-        
-
+        //if we want to show the paths that aren't the shortest
         if(drawAll == true)
         {
             //if we've gone through every path, reset
@@ -128,66 +126,66 @@ public class DrawMaze extends Canvas {
                 pathnum = 0;        
                 drawAll = false;
             }
-            //put our path of paths in listAllPaths
             else  //othrwise, print the next path
             {
                 g.setColor(Color.GREEN);
-                drawPath(listAllPaths.get(pathnum).getVertexList(), g, rowSp, colSp);
-            }
-            
-
+                drawPath(listAllPaths.get(pathnum).getVertexList(), 
+                        g, rowSpacing, colSpacing);
+            }   
         }
-        
         //draw the shortest path
         if(drawShortest == true)
         {        
             g.setColor(Color.BLUE);
-            drawPath(findPathBetween(maze, 0, m*n -1).getVertexList(), g, 
-                    rowSp, colSp);
+            drawPath(findPathBetween(maze, 0, rows*cols -1).getVertexList(), g, 
+                    rowSpacing, colSpacing);
         }
         
+        paintMaze(g, rowSpacing, colSpacing);  
+        
+    }
 
-        g.setColor(Color.red);  
+    private void paintMaze(Graphics2D g, float rowSpacing, float colSpacing) {
+        
+        g.setColor(Color.red);
         g.draw(new Line2D.Float(0, 0, SIZE , 0)); //top border
-        g.draw(new Line2D.Float(0, rowSp, 0, SIZE)); //creates the opening left edge
+        g.draw(new Line2D.Float(0, rowSpacing, 0, SIZE)); //creates the opening left edge
         g.draw(new Line2D.Float(0, SIZE, SIZE, SIZE)); //creates the bottom edge
-        g.draw(new Line2D.Float(SIZE, 0, SIZE, SIZE - rowSp)); //right edge
+        g.draw(new Line2D.Float(SIZE, 0, SIZE, SIZE - rowSpacing)); //right edge
         int curnum = 0;
 
         //draws all of the vertical lines
-        for(int i = 0; i < m; i++) //iterates through the y axis
+        for(int i = 0; i < rows; i++) //iterates through the y axis
         {
-            for(int j = 0; j < n -1; j++) //iterates through the x axis
+            for(int j = 0; j < cols -1; j++) //iterates through the x axis
             {
                 if(maze.containsEdge(curnum, curnum+1) == false)
                 {
-                    g.draw(new Line2D.Float((j + 1)*colSp, i * rowSp, 
-                        (j + 1) * colSp, (i + 1) * rowSp));
+                    g.draw(new Line2D.Float((j + 1)*colSpacing, i * rowSpacing,
+                            (j + 1) * colSpacing, (i + 1) * rowSpacing));
                 }
                 curnum++;
             }
             curnum++;
         }
         
-        //think of rowSp and colSp as our units, and down a row, we move down
-        //rowSp pixels. If we wanna move down 2 rows, we do 2 * rowSp
+        //think of rowSpacing and colSpacing as our units, and down a row, we move down
+        //rowSp pixels. If we wanna move down 2 rows, we do 2 * rowSpacing
         
-        //this prints all of the horizontal lines
-        
+        //this paints all of the horizontal lines in the maze
         curnum = 0;
-        for(int i = 1; i < m; i++)
+        for(int i = 1; i < rows; i++)
         {
-            for(int j = 0; j < n; j++)
+            for(int j = 0; j < cols; j++)
             {
-                if(maze.containsEdge(curnum, curnum + n) == false)
+                if(maze.containsEdge(curnum, curnum + cols) == false)
                 {
-                    g.draw(new Line2D.Float(j*colSp, i*rowSp, 
-                            (j + 1) *colSp, i *rowSp));
+                    g.draw(new Line2D.Float(j*colSpacing, i*rowSpacing, 
+                            (j + 1) *colSpacing, i *rowSpacing));
                 }
                 curnum++;
             }
-        }        
-        
+        }
     }
     
    
@@ -211,7 +209,7 @@ public class DrawMaze extends Canvas {
             {
                curcol = curcol - colSp;
             }
-            else if (prevnum - n == curnum) 
+            else if (prevnum - cols == curnum) 
             {
                 currow = currow - rowSp;
             }
@@ -219,7 +217,7 @@ public class DrawMaze extends Canvas {
             {
                 currow = currow + rowSp;
             }
-
+            //fill in the block
             g.fill(new Rectangle2D.Float(curcol, currow, colSp
                     , rowSp));
 
@@ -239,7 +237,7 @@ public class DrawMaze extends Canvas {
 
         
         maze = new DefaultDirectedGraph<>(DefaultEdge.class);
-        edgeSet = new UnionFind(m *n);
+        edgeSet = new UnionFind(rows *cols);
 
         int p1 = 0, p2 = 0; //designed to hold return values for find
         /*iterate through our list of potential walls, remove them with the logic
@@ -285,7 +283,7 @@ public class DrawMaze extends Canvas {
     
     private void genMaze() {
         maze = new DefaultDirectedGraph<>(DefaultEdge.class);
-        edgeSet = new UnionFind(m *n);
+        edgeSet = new UnionFind(rows *cols);
 
         int p1 = 0, p2 = 0; //designed to hold return values for find
         /*iterate through our list of potential walls, remove them with the logic
@@ -313,7 +311,7 @@ public class DrawMaze extends Canvas {
         }
     }
     
-    //this function will shuffle our array of edges (allPairs)
+    //this function will shuffle our array of edges to randomize the maze
     private void shuffle() {
         
         int rand1, rand2, hold1, hold2;
@@ -321,11 +319,11 @@ public class DrawMaze extends Canvas {
         
         
         //randomly swaps elements of the array
-        for(int i = 0; i < size; i++)
+        for(int i = 0; i < numEdges; i++)
         {
             //generates 2 random numbers
-            rand1 = generator.nextInt(size);
-            rand2 = generator.nextInt(size);
+            rand1 = generator.nextInt(numEdges);
+            rand2 = generator.nextInt(numEdges);
             
             //swap the 2 elements
             hold1 = allPairs[rand1][0];
@@ -338,7 +336,7 @@ public class DrawMaze extends Canvas {
             allPairs[rand2][1] = hold2;
         }
     }
-    
+    //this will print the list of edges, useful if you need to debug
     private void printList() 
     {
         for(int i = 0; i < allPairs.length; i++)
@@ -348,29 +346,29 @@ public class DrawMaze extends Canvas {
     }
     
     private void getEdgeList() {
-        allPairs  = new int [size][2];
+        allPairs  = new int [numEdges][2];
         int pairIndex = 0, curPair = 0;
         //9 cases of edges
-        for(int i = 0; i < m; i++)
+        for(int i = 0; i < rows; i++)
         {
-            for(int j = 0; j < n; j++)
+            for(int j = 0; j < cols; j++)
             {
 
-                if(i == m-1 && j == n-1 ) //we are done, we've reachedthe corner
+                if(i == rows-1 && j == cols-1 ) //we are done, we've reachedthe corner
                 {
                     return;
                 }
-                else if(i == m-1){
+                else if(i == rows-1){
                     //connect to the right edge
                     allPairs[pairIndex][0] = curPair;
                     allPairs[pairIndex][1] = curPair + 1;
                     pairIndex++;
                 }
-                else if(j == n-1) 
+                else if(j == cols-1) 
                 {
                    //conect edge to square below
                     allPairs[pairIndex][0] = curPair;
-                    allPairs[pairIndex][1] = curPair + n;
+                    allPairs[pairIndex][1] = curPair + cols;
                     pairIndex++;
                 }
                 else
@@ -380,7 +378,7 @@ public class DrawMaze extends Canvas {
                     allPairs[pairIndex][1] = curPair + 1;
                     //edge below the current square
                     allPairs[pairIndex + 1][0] = curPair;
-                    allPairs[pairIndex + 1][1] = curPair + n;
+                    allPairs[pairIndex + 1][1] = curPair + cols;
                     pairIndex += 2;
                 }
                 curPair++;
@@ -393,33 +391,33 @@ public class DrawMaze extends Canvas {
     //returns the idnex of the current path
     
     /*this will help us find the odds of an edge getting deleted.
-    the value is based on the size of the array, the values are arbitrary
+    the value is based on the numEdges of the array, the values are arbitrary
    but they were tested and they work well on average */
     private double findOdds()
     {
         double percent = 0.0;
 
-        if(m*n >= 18222)            
+        if(rows*cols >= 18222)            
             percent = .0006;
-        else if(m*n >= 8100)
+        else if(rows*cols >= 8100)
             percent = .0015;
-        else if(m*n >= 6400)
+        else if(rows*cols >= 6400)
             percent = .002;
-        else if(m*n >= 4900)
+        else if(rows*cols >= 4900)
             percent = .0035;
-        else if(m*n >= 3600)
+        else if(rows*cols >= 3600)
             percent = .0038;
-        else if(m*n >= 2500)
+        else if(rows*cols >= 2500)
             percent = .0045;
-        else if(m*n >= 1600)
+        else if(rows*cols >= 1600)
             percent = .0055;
-        else if(m*n >= 900)
+        else if(rows*cols >= 900)
             percent = .0065;
-        else if(m*n >= 676)
+        else if(rows*cols >= 676)
             percent = .016;
-        else if(m*n >= 225)
+        else if(rows*cols >= 225)
             percent = .025;
-        else if(m*n >= 100)
+        else if(rows*cols >= 100)
             percent = .045;
         else
             percent = .1;
@@ -435,6 +433,7 @@ public class DrawMaze extends Canvas {
             return listAllPaths.size();
     } 
     
+    //go to the next path in the list of paths
     public void incPath() {
         if(listAllPaths == null)
             pathnum = 0;
@@ -443,7 +442,7 @@ public class DrawMaze extends Canvas {
         else
             pathnum = 0;
     }
-    
+    //go to the previous path in the list of paths
     public void decPath() {
         if(listAllPaths == null)
             pathnum = 0;
