@@ -25,10 +25,10 @@ public class Menu extends JFrame {
         
          //set the properties of our GUI
         setTitle("Maze generator by Connor Hulla");
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setDefaultCloseOperation(EXIT_ON_CLOSE); //when closed, the program exits
         pack();
         setLocationRelativeTo(null);
-        setResizable(false);
+        setResizable(false); //cant be resized
     }
     
     private void createGUI() {
@@ -120,9 +120,9 @@ public class Menu extends JFrame {
                
            }
            
-           
+           //This opens up the MazeHolder, the screen that displays the maze
            MazeHolder mazeWindow = new MazeHolder(rownum, colnum, hold);
-          
+           //once the maze window is open, this needs to close
            mazeWindow.setVisible(true);      
            setVisible(false);
      

@@ -133,7 +133,7 @@ public class DrawMaze extends Canvas {
                         g, rowSpacing, colSpacing);
             }   
         }
-        //draw the shortest path
+        //draw the shortest path if it is selected
         if(drawShortest == true)
         {        
             g.setColor(Color.BLUE);

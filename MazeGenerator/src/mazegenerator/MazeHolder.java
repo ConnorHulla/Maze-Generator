@@ -15,13 +15,14 @@ import javax.swing.JLabel;
 import javax.swing.JToggleButton;
 import javax.swing.SwingUtilities;
 
-
+/*MazeHolder is a graphical user interface that displays the maze to the user
+while also providing some useful buttons*/
 
 public class MazeHolder extends JFrame {
     private JButton backButton, genMaze; //north buttons
     private JButton AllPaths, ShortestPath, prevpath, nextpath; //south buttons
     private JToggleButton toggleMult; //will allow the user to allow the algorithm to produce mazes with multiple solutions
-    private Canvas canvas;
+    private Canvas canvas; //canvas displays graphics objects
     private Menu prev; //used to go back to the first screen
     private JLabel curpath;
     private DrawMaze maze;
@@ -46,6 +47,8 @@ public class MazeHolder extends JFrame {
         
         
     }
+    
+    //this function will set up the north panel, south panel, and center panel
     
     public MazeHolder(int r, int c, Menu hold) {
 
@@ -73,12 +76,17 @@ public class MazeHolder extends JFrame {
         genMaze = new JButton("Generate Maze");
         toggleMult = new JToggleButton("Allow Multiple Solutions");
         
+        /*pressing the "Allow Multiple Solutions" button sets the maze to generate
+        with multiple solutions instead of just one */
         toggleMult.addActionListener((ActionEvent e) -> {
             maze.setMultiple(toggleMult.isSelected());
         });
         
         genMaze.addActionListener(new MazeListener());
         
+        
+        /*add the back button, generate maze button, and multiple solutions 
+        toggle to the north part of the GUI */
         north.add(backButton);
         north.add(genMaze);
         north.add(toggleMult);
@@ -105,9 +113,10 @@ public class MazeHolder extends JFrame {
                     + " out of " + maze.getNumPaths());
             maze.allPaths();
         });
+        
         //when the button is pressed, go to the next path
         nextpath.addActionListener((ActionEvent e) -> { 
-            maze.incPath(); 
+            maze.incPath(); //goes to the next path in maze
             curpath.setText("Path # " + (maze.getCurPath() + 1)
                     + " out of " + maze.getNumPaths());
             maze.allPaths();
@@ -115,7 +124,10 @@ public class MazeHolder extends JFrame {
         backButton.addActionListener(new BackListener());
         
         
+        /*calls upon the function that allows for the shortest path in our maze
+        to be displayed */
         ShortestPath.addActionListener((ActionEvent e)->{maze.shortestPath();});
+        
         
         AllPaths.addActionListener((ActionEvent e) -> {
             showPaths = maze.willDrawAll() == false;
@@ -128,8 +140,7 @@ public class MazeHolder extends JFrame {
             nextpath.setEnabled(showPaths);
         });
         
-        
-        //add the buttons to the south frame
+        //adds the path-related buttons to the south part of our GUI
         south.add(ShortestPath);
         south.add(AllPaths);
         south.add(prevpath);
@@ -141,27 +152,19 @@ public class MazeHolder extends JFrame {
         panel.add(south, BorderLayout.SOUTH);
        
         JPanel center = new JPanel();
-        
-        /* DrawMaze has a function that paints an oval, so we set our canvas
-        equal to it, set the size of our canvas, add the canvas to our center,
-        and we done*/
-        //if we want to access our methods, set thte canvas equal like htis
+    
+        //Create a new maze, put it on our canvas
         maze = new DrawMaze(rows,cols);
         canvas = maze;
         
+        //add the canvas to the center of our GUI then make it visible
         canvas.setSize(410, 410);
-        
         center.add(canvas);
-        center.setVisible(true);
+        center.setVisible(true); //this line makes the maze visible
 
         
         panel.add(center, BorderLayout.CENTER);
-        
-        
-        
         panel.setVisible(true);
-        
-        
         getContentPane().add(panel);
     }
     
@@ -173,20 +176,22 @@ public class MazeHolder extends JFrame {
         
     }
 
-    //press the back button to go to the menu
+    //press the back button to go to the menu, and hides the mazeHolder
     private class BackListener implements ActionListener {
         //this function deletes some objects
         //this needs to be done because really large mazes use lots of memory
         @Override
         public void actionPerformed(ActionEvent e) {
-            maze.clear();
-            setVisible(false);
+            maze.clear(); //delete the maze
+            setVisible(false); 
             prev.setVisible(true);
             maze = null;
             System.gc(); //calls the garbage collector
         }
     }
 
+    
+    //generates a new
     private class MazeListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
